@@ -15,18 +15,27 @@ export default class Auto{
         this._color = color.toUpperCase();
     }
 
-    mostrarEstado(){
+    set modelo(modelo){
+        if(modelo < 2000){
+            this._modelo = 2000;
+        }
+        else{
+            this._modelo = modelo;
+        }
+    }
+
+    _mostrarEstado(){
         console.log(`El auto ${this._marca} ${this.color} del año ${this._modelo} tiene un kilometraje de ${this._kilometraje}kms y está ${this._estado}`);
     }
 
     encender(){
         this._estado = "Encendido";
-        this.mostrarEstado();
+        this._mostrarEstado();
     }
 
     apagar(){
         this._estado = "Apagado";
-        this.mostrarEstado();
+        this._mostrarEstado();
     }
 
     avanzar(velocidad, tiempo){
@@ -36,7 +45,7 @@ export default class Auto{
         else {
             let distancia = velocidad * tiempo;
             this._kilometraje = this._kilometraje + distancia;
-            this.mostrarEstado();
+            this._mostrarEstado();
         }
     }
 }
