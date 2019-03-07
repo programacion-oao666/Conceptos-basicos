@@ -3,6 +3,7 @@ export default class Employee{
         this._name = name.toUpperCase();
         this._email = email;
         this._birthday = birthday;
+        this._months = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
     }
     get name(){
         return this._name;
@@ -16,7 +17,7 @@ export default class Employee{
         return this._birthday;
     }
     getBirthdayAsString(){
-        let date = (this._birthday.getDate() + 1) + "/" + (this._birthday.getMonth() + 1) + "/" + this._birthday.getFullYear();
+        let date = this._birthday.getDate() + "/" + this._months[this._birthday.getMonth()] + "/" + this._birthday.getFullYear();
 
         return date;
     }
