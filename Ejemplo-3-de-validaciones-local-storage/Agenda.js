@@ -24,27 +24,110 @@ export default class Agenda {
 
   }
 
-  _editEmployee(row, employee){
+  _deleteEmployee(row, employee) {
+    Swal.fire({
+      type: "question",
+      title: "Eliminar empleado",
+      text: employee.name,
+      showCancelButton: true,
+      confirmButtonText: "Si",
+      cancelButtonText: "No"
+    }).then(result => {
+      if (result.value) {
+        let pos = this._findEmployee(employee.email);
+        this._employees.splice(pos, 1);
+        localStorage.setItem("employees", JSON.stringify(this._employees));
+        row.remove();
+      }
+    })
+  }
+
+  _addEditDeleteToRow(row, employee) {
+    let btnEdit = document.createElement("input");
+    btnEdit.type = "button";
+    btnEdit.value = "editar";
+    btnEdit.className = "btn btn-success";
+    btnEdit.addEventListener("click", () => {
+      this._editEmployee(row, employee);
+    });
+
+    let btnDelete = document.createElement("input");
+    btnDelete.type = "button";
+    btnDelete.value = "eliminar";
+    btnDelete.className = "btn btn-danger";
+    btnDelete.addEventListener("click", () => {
+      this._deleteEmployee(row, employee);
+    });
+
+    row.cells[4].innerHTML = "";
+    row.cells[4].appendChild(btnEdit);
+    row.cells[5].innerHTML = "";
+    row.cells[5].appendChild(btnDelete);
+  }
+
+  _cancelEdit(row, employee) {
+    row.cells[0].innerHTML = employee.name;
+    row.cells[1].innerHTML = employee.email;
+    row.cells[2].innerHTML = employee.getBirthdayAsString();
+    this._addEditDeleteToRow(row, employee);
+
+  }
+
+  _saveEdit(row, employee, newEmployee) {
+    let pos = this._findEmployee(employee.email);
+
+    this._employees[pos] = newEmployee;
+    localStorage.setItem("employees", JSON.stringify(this._employees));
+
+    this._cancelEdit(row, new Employee(newEmployee));
+  }
+
+  _editEmployee(row, employee) {
     let iName = document.createElement("input");
     iName.type = "text";
     iName.value = employee.name;
 
-    row.cells[0].innerHTML = "";
-    row.cells[0].appendChild(iName);
-
     let iEmail = document.createElement("input");
-    iEmail.type ="text";
+    iEmail.type = "text";
     iEmail.value = employee.email;
-
-    row.cells[1].innerHTML = "";
-    row.cells[1].appendChild(iEmail);
 
     let iBirthday = document.createElement("input");
     iBirthday.type = "date";
     iBirthday.value = employee.getBirthdayAsUSString();
 
+    let btnSave = document.createElement("input");
+    btnSave.type = "button";
+    btnSave.value = "Grabar";
+    btnSave.className = "btn btn-success";
+    btnSave.addEventListener("click", () => {
+      let newEmployee = {
+        name: iName.value,
+        email: iEmail.value,
+        birthday: iBirthday.value
+      };
+
+      this._saveEdit(row, employee, newEmployee);
+    })
+
+    let btnCancel = document.createElement("input");
+    btnCancel.type = "button";
+    btnCancel.value = "Cancelar";
+    btnCancel.className = "btn btn-danger";
+    btnCancel.addEventListener("click", () => {
+      this._cancelEdit(row, employee);
+    })
+
+    row.cells[0].innerHTML = "";
+    row.cells[0].appendChild(iName);
+    row.cells[1].innerHTML = "";
+    row.cells[1].appendChild(iEmail);
     row.cells[2].innerHTML = "";
     row.cells[2].appendChild(iBirthday);
+    row.cells[4].innerHTML = "";
+    row.cells[4].appendChild(btnSave);
+    row.cells[5].innerHTML = "";
+    row.cells[5].appendChild(btnCancel);
+
   }
 
 
@@ -55,31 +138,15 @@ export default class Agenda {
     let cellEmail = row.insertCell(1);
     let cellBirthday = row.insertCell(2);
     let cellAge = row.insertCell(3);
-    let cellEdit = row.insertCell(4);
-    let cellDelete = row.insertCell(5);
-
-    let btnEdit = document.createElement("input");
-    btnEdit.type = "button";
-    btnEdit.value = "editar";
-    btnEdit.className = "btn btn-success";
-    btnEdit.addEventListener("click", () =>{
-      this._editEmployee(row, employee);
-    })
-
-    let btnDelete = document.createElement("input");
-    btnDelete.type ="button";
-    btnDelete.value = "eliminar";
-    btnDelete.className = "btn btn-danger";
-    btnDelete.addEventListener("click", () =>{
-      this._editEmployee(row, employee);
-    })
+    row.insertCell(4);
+    row.insertCell(5);
 
     cellName.innerHTML = employee.name;
     cellEmail.innerHTML = employee.email;
     cellBirthday.innerHTML = employee.getBirthdayAsString();
     cellAge.innerHTML = employee.getAge();
-    cellEdit.appendChild(btnEdit);
-    cellDelete.appendChild(btnDelete);
+    this._addEditDeleteToRow(row, employee);
+
 
     this._numEmployees++; // this._numEmployees = this._numEmployees + 1
     this._sumAge += employee.getAge(); // this._sumAge = this._sumAge + employee.getAge()
@@ -98,10 +165,10 @@ export default class Agenda {
     this._employees.push(objEmployee);
   }
 
-  _findEmployee(email){
+  _findEmployee(email) {
     let result = -1;
-    this._employees.forEach((employee, index) =>{
-      if(employee.email === email){
+    this._employees.forEach((employee, index) => {
+      if (employee.email === email) {
         result = index;
         return;
       }
@@ -110,20 +177,20 @@ export default class Agenda {
   }
 
   addEmployee(employee) {
-  if(this._findEmployee(employee.email) >= 0){
-    Swal.fire({
-      type: "error",
-      title: "Error",
-      text: "Este usuario ya existe"
-    });
-    return;
-  }
-    
+    if (this._findEmployee(employee.email) >= 0) {
+      Swal.fire({
+        type: "error",
+        title: "Error",
+        text: "Este usuario ya existe"
+      });
+      return;
+    }
+
 
     this._addToTable(employee);
     localStorage.setItem("employees", JSON.stringify(this._employees));
 
-    if(this._findEmployee(employee.email) >= 0){
+    if (this._findEmployee(employee.email) >= 0) {
       Swal.fire({
         type: "success",
         title: "¡EXITO!",
